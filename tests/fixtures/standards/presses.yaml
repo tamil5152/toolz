@@ -1,0 +1,5 @@
+table: presses
+source: "Test fixture: fixed values for tests, not shop standards"
+description: "Presses: capacity in kN, shut height range in mm (bed to ram at bottom of stroke)"
+rows:
+  - {press_id: PR-400, capacity_kn: 400, shut_height_min_mm: 150, shut_height_max_mm: 200}

@@ -1,0 +1,8 @@
+table: min_web_and_edge
+placeholder: true
+source: "PLACEHOLDER - replace with shop minimum web and edge distances"
+description: "Minimum web between cut contours and distance to the part edge, as multiples of thickness"
+rows:
+  - {material: mild_steel, min_web_to_thickness: 1.5, min_edge_to_thickness: 1.5}
+  - {material: stainless_304, min_web_to_thickness: 2.0, min_edge_to_thickness: 2.0}
+  - {material: aluminium_5052, min_web_to_thickness: 1.5, min_edge_to_thickness: 1.5}

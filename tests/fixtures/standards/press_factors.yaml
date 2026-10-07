@@ -1,0 +1,5 @@
+table: press_factors
+source: "Test fixture: fixed values for tests, not shop standards"
+description: "Stripping force as % of cutting force, and the safety factor on press tonnage"
+rows:
+  - {name: default, stripping_force_pct: 10, press_safety_factor: 1.25}

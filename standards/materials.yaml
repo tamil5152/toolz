@@ -1,0 +1,8 @@
+table: materials
+placeholder: true
+source: "PLACEHOLDER - replace with shop material standard"
+description: "Sheet materials: strengths in N/mm2"
+rows:
+  - {material: mild_steel, shear_strength_n_per_mm2: 300, tensile_strength_n_per_mm2: 370}
+  - {material: stainless_304, shear_strength_n_per_mm2: 450, tensile_strength_n_per_mm2: 600}
+  - {material: aluminium_5052, shear_strength_n_per_mm2: 140, tensile_strength_n_per_mm2: 210}

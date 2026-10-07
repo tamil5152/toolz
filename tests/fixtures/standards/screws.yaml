@@ -1,0 +1,7 @@
+table: screws
+source: "Test fixture: fixed values for tests, not shop standards"
+description: "Socket head cap screws: dimensions and thread engagement in mm"
+rows:
+  - {size: M6, diameter_mm: 6, head_diameter_mm: 10, head_height_mm: 6, thread_engagement_mm: 9}
+  - {size: M8, diameter_mm: 8, head_diameter_mm: 13, head_height_mm: 8, thread_engagement_mm: 12}
+  - {size: M10, diameter_mm: 10, head_diameter_mm: 16, head_height_mm: 10, thread_engagement_mm: 15}

@@ -1,0 +1,7 @@
+table: fastener_edge_distance
+placeholder: true
+source: "PLACEHOLDER - replace with shop minimum screw and dowel edge distances"
+description: "Smallest distance from a screw or dowel centre to a plate edge, as a multiple of its diameter"
+rows:
+  - {fastener: screw, min_edge_to_diameter: 1.5}
+  - {fastener: dowel, min_edge_to_diameter: 1.5}

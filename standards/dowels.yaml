@@ -1,0 +1,8 @@
+table: dowels
+placeholder: true
+source: "PLACEHOLDER - replace with shop dowel standard"
+description: "Stocked dowel pin diameters in mm"
+rows:
+  - {diameter_mm: 6}
+  - {diameter_mm: 8}
+  - {diameter_mm: 10}

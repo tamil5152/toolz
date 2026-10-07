@@ -1,0 +1,11 @@
+table: clearance_pct_by_material
+placeholder: true
+source: "PLACEHOLDER - replace with shop clearance table"
+description: "Punch-die clearance per side, % of sheet thickness"
+rows:
+  - {material: mild_steel, thickness_mm_min: 0.0, thickness_mm_max: 3.0, clearance_pct: 5}
+  - {material: mild_steel, thickness_mm_min: 3.0, thickness_mm_max: 6.0, clearance_pct: 6}
+  - {material: stainless_304, thickness_mm_min: 0.0, thickness_mm_max: 3.0, clearance_pct: 7}
+  - {material: stainless_304, thickness_mm_min: 3.0, thickness_mm_max: 6.0, clearance_pct: 8}
+  - {material: aluminium_5052, thickness_mm_min: 0.0, thickness_mm_max: 3.0, clearance_pct: 4}
+  - {material: aluminium_5052, thickness_mm_min: 3.0, thickness_mm_max: 6.0, clearance_pct: 5}
