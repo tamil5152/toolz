@@ -7,7 +7,9 @@ with a human designer. First target: simple progressive press tools for flat
 sheet-metal parts. First UI: a FreeCAD 1.x workbench.
 
 ## Hard rules
-- Python 3.12 only. No TypeScript or JavaScript anywhere.
+- Python 3.12 only. No TypeScript or JavaScript anywhere. The web UI (server/ui.py)
+  is HTML generated in Python; live updates use htmx from a CDN through HTML
+  attributes only, so no JavaScript is written in this repository.
 - The LLM never produces numbers or geometry directly. Every value comes from a
   calculation function, a rule table in standards/, or the designer.
 - Every feature is a pure, parametric function: inputs (Pydantic model with units

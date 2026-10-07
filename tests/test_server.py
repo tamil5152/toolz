@@ -14,11 +14,26 @@ from server.app import app
 client = TestClient(app)
 
 
-def test_home_page_lists_links_and_placeholder_warning() -> None:
+def test_home_page_is_the_live_designer() -> None:
     response = client.get("/")
     assert response.status_code == 200
-    assert "/docs" in response.text
+    assert 'hx-post="/ui/update"' in response.text
+    assert "Strip layout" in response.text
     assert "placeholder" in response.text  # shipped standards are still placeholders
+
+
+def test_live_update_returns_the_results_panel() -> None:
+    form = {"shape": "circle", "diameter_mm": "40", "holes": "10, 20, 20", "thickness_mm": "2"}
+    response = client.post("/ui/update", data=form)
+    assert response.status_code == 200
+    assert "<html" not in response.text  # a fragment, swapped into the page
+    assert "Rule checks" in response.text
+
+
+def test_plain_form_submit_returns_the_full_page() -> None:
+    response = client.post("/", data={"length_mm": "90"})
+    assert response.status_code == 200
+    assert 'name="length_mm" value="90"' in response.text
 
 
 def test_health() -> None:

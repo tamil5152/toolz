@@ -21,7 +21,7 @@ pytest -q
 uvicorn server.app:app --reload
 ```
 
-Open http://localhost:8000 for the landing page and http://localhost:8000/docs for the
+Open http://localhost:8000 for the live designer (results recalculate as you type) and http://localhost:8000/docs for the
 interactive API. On Vercel, the same app is deployed from `server/app.py` with only
 the light dependencies; part import and tool building need the `cad` extra and answer
 503 there.

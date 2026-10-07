@@ -24,7 +24,7 @@ from rules.standards import Standards
 ROTATION_STEP_DEG = 5.0
 # Pitch search resolution, in mm.
 PITCH_TOL_MM = 1e-3
-_COARSE_STEPS = 200
+_COARSE_STEPS = 60
 
 
 class StripLayout(BaseModel):
@@ -111,15 +111,19 @@ def _min_pitch(pts: np.ndarray, bridge_mm: float) -> float:
     upper = float(pts[:, 0].max() - pts[:, 0].min()) + bridge_mm  # bounding box: always clear
 
     def clear(pitch: float) -> bool:
-        return _polygon_distance(pts, pts + np.array([pitch, 0.0])) >= bridge_mm - PITCH_TOL_MM
+        copy = pts + np.array([pitch, 0.0])
+        return _copy_distance(pts, copy, bridge_mm) >= bridge_mm - PITCH_TOL_MM
 
-    # Coarse scan first: clearance is not monotonic for parts that interlock.
-    step = upper / _COARSE_STEPS
-    low, high = 0.0, upper
-    for i in range(1, _COARSE_STEPS + 1):
-        if clear(i * step):
-            low, high = (i - 1) * step, i * step
-            break
+    # No pitch below the longest horizontal chord can work, so the search starts there.
+    start = min(_longest_chord(pts), upper)
+    low, high = start, upper
+    if not _is_convex(pts):
+        # Clearance is not monotonic for parts that interlock: coarse scan first.
+        step = (upper - start) / _COARSE_STEPS
+        for i in range(_COARSE_STEPS + 1):
+            if clear(start + i * step):
+                low, high = start + max(i - 1, 0) * step, start + i * step
+                break
     while high - low > PITCH_TOL_MM:
         mid = (low + high) / 2
         if clear(mid):
@@ -129,13 +133,63 @@ def _min_pitch(pts: np.ndarray, bridge_mm: float) -> float:
     return round(high, 3)
 
 
-def _polygon_distance(a: np.ndarray, b: np.ndarray) -> float:
-    """Distance between two closed polygon outlines; 0 if they cross or touch."""
+def _is_convex(pts: np.ndarray) -> bool:
+    """True if every turn along the outline goes the same way (collinear points allowed).
+
+    Two copies of a convex part only move apart as the pitch grows, so the pitch can
+    be found by plain bisection.
+    """
+    edges = np.roll(pts, -1, axis=0) - pts
+    turns = (
+        edges[:, 0] * np.roll(edges, -1, axis=0)[:, 1]
+        - edges[:, 1] * np.roll(edges, -1, axis=0)[:, 0]
+    )
+    scale = float(np.abs(turns).max()) or 1.0
+    turns = turns[np.abs(turns) > 1e-9 * scale]
+    return bool(np.all(turns > 0) or np.all(turns < 0))
+
+
+def _longest_chord(pts: np.ndarray) -> float:
+    """Longest horizontal line inside the outline.
+
+    A copy shifted by less than this along X overlaps that chord, so it is a lower
+    bound for the pitch. Chord lengths vary linearly between vertex heights, so
+    checking just above and below every vertex height finds the longest.
+    """
+    a, b = pts, np.roll(pts, -1, axis=0)
+    longest = 0.0
+    for y in np.unique(pts[:, 1]):
+        for level in (y - 1e-6, y + 1e-6):
+            crosses = (a[:, 1] > level) != (b[:, 1] > level)
+            if not crosses.any():
+                continue
+            xa, ya, xb, yb = a[crosses, 0], a[crosses, 1], b[crosses, 0], b[crosses, 1]
+            xs = np.sort(xa + (level - ya) * (xb - xa) / (yb - ya))
+            longest = max(longest, float((xs[1::2] - xs[0::2]).max()))
+    return longest
+
+
+def _copy_distance(a: np.ndarray, b: np.ndarray, cutoff: float) -> float:
+    """Distance between an outline ``a`` and its copy ``b`` shifted along +X; 0 if they cross.
+
+    One copy cannot lie wholly inside the other (they have the same area), so crossing
+    edges is the only way they overlap. Only distances below ``cutoff`` matter, so
+    edges further apart than that along X are left out.
+    """
     a1, a2 = a, np.roll(a, -1, axis=0)
     b1, b2 = b, np.roll(b, -1, axis=0)
-    if _any_segments_cross(a1, a2, b1, b2) or _contains(a, b[0]) or _contains(b, a[0]):
+    # Edges of a that reach towards b, and edges of b that reach back towards a.
+    near_a = np.maximum(a1[:, 0], a2[:, 0]) >= b[:, 0].min() - cutoff
+    near_b = np.minimum(b1[:, 0], b2[:, 0]) <= a[:, 0].max() + cutoff
+    a1, a2, b1, b2 = a1[near_a], a2[near_a], b1[near_b], b2[near_b]
+    if len(a1) == 0 or len(b1) == 0:
+        return cutoff
+    if _any_segments_cross(a1, a2, b1, b2):
         return 0.0
-    return min(_points_to_segments(a, b1, b2), _points_to_segments(b, a1, a2))
+    return min(
+        _points_to_segments(np.vstack([a1, a2]), b1, b2),
+        _points_to_segments(np.vstack([b1, b2]), a1, a2),
+    )
 
 
 def _points_to_segments(p: np.ndarray, s1: np.ndarray, s2: np.ndarray) -> float:
@@ -159,16 +213,3 @@ def _any_segments_cross(a1: np.ndarray, a2: np.ndarray, b1: np.ndarray, b2: np.n
     o1, o2 = orient(A1, A2, B1), orient(A1, A2, B2)
     o3, o4 = orient(B1, B2, A1), orient(B1, B2, A2)
     return bool(np.any((o1 * o2 < 0) & (o3 * o4 < 0)))
-
-
-def _contains(polygon: np.ndarray, point: np.ndarray) -> bool:
-    """Ray-casting point-in-polygon test."""
-    x, y = float(point[0]), float(point[1])
-    inside = False
-    n = len(polygon)
-    for i in range(n):
-        x1, y1 = polygon[i]
-        x2, y2 = polygon[(i + 1) % n]
-        if (y1 > y) != (y2 > y) and x < x1 + (y - y1) * (x2 - x1) / (y2 - y1):
-            inside = not inside
-    return inside

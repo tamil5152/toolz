@@ -4,6 +4,6 @@ source: "PLACEHOLDER - replace with shop strip layout standard"
 description: "Bridge between parts and allowance to each strip edge, by sheet thickness, in mm"
 rows:
   - {thickness_mm_min: 0.0, thickness_mm_max: 1.0, bridge_mm: 1.5, edge_allowance_mm: 2.0}
-  - {thickness_mm_min: 1.0, thickness_mm_max: 2.0, bridge_mm: 2.0, edge_allowance_mm: 2.5}
-  - {thickness_mm_min: 2.0, thickness_mm_max: 4.0, bridge_mm: 3.0, edge_allowance_mm: 3.5}
-  - {thickness_mm_min: 4.0, thickness_mm_max: 6.0, bridge_mm: 4.0, edge_allowance_mm: 5.0}
+  - {thickness_mm_min: 1.0, thickness_mm_max: 2.0, bridge_mm: 3.0, edge_allowance_mm: 2.5}
+  - {thickness_mm_min: 2.0, thickness_mm_max: 4.0, bridge_mm: 6.0, edge_allowance_mm: 3.5}
+  - {thickness_mm_min: 4.0, thickness_mm_max: 6.0, bridge_mm: 9.0, edge_allowance_mm: 5.0}

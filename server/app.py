@@ -12,7 +12,7 @@ import tempfile
 from pathlib import Path
 from typing import Any
 
-from fastapi import FastAPI, HTTPException, UploadFile
+from fastapi import FastAPI, HTTPException, Request, UploadFile
 from fastapi.responses import HTMLResponse
 from pydantic import BaseModel, Field
 
@@ -20,6 +20,8 @@ from engine.calc.forces import CuttingContour, PressForces, press_forces
 from engine.calc.strip_layout import StripLayoutOptions, strip_layout_options
 from rules.engine import RuleResult, RulesEngine, Subject, has_blocking_failure
 from rules.standards import Standards, StandardsError
+from server import ui
+from server.designer import DesignInput, DesignResult, evaluate, parse_form
 
 app = FastAPI(
     title="Tooldesign API",
@@ -46,39 +48,37 @@ def _require_cad() -> None:
 # --- pages ----------------------------------------------------------------------------
 
 
+def _design(form: dict[str, str]) -> tuple[DesignInput, DesignResult, Standards]:
+    standards = _standards()
+    inputs, errors = parse_form(form)
+    result = evaluate(inputs, standards, RulesEngine.load())
+    result.errors = errors + result.errors
+    return inputs, result, standards
+
+
+async def _form(request: Request) -> dict[str, str]:
+    form = await request.form()
+    return {k: v for k, v in form.items() if isinstance(v, str)}
+
+
 @app.get("/", response_class=HTMLResponse, include_in_schema=False)
 def home() -> str:
-    standards = _standards()
-    placeholders = standards.placeholder_tables
-    warning = (
-        f"<p class='warn'>{len(placeholders)} standards tables still hold placeholder values: "
-        f"{', '.join(placeholders)}. Results are not shop-approved until they are replaced.</p>"
-        if placeholders
-        else ""
-    )
-    geometry = "available" if CAD_AVAILABLE else "not installed on this server"
-    return f"""<!doctype html>
-<html lang="en"><head><meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Tooldesign API</title>
-<style>
-body {{ font-family: system-ui, sans-serif; max-width: 720px; margin: 2rem auto; padding: 0 16px;
-       line-height: 1.5; color: #1f2328; background: #fff; }}
-code {{ background: #f3f4f6; padding: 1px 4px; border-radius: 4px; }}
-.warn {{ background: #fff4e5; border-left: 4px solid #d97706; padding: 8px 12px; }}
-</style></head>
-<body>
-<h1>Tooldesign API</h1>
-<p>Press tool design engine: shop rules, press calculations and tool geometry.</p>
-{warning}
-<p>Geometry (part import, tool building): {geometry}.</p>
-<ul>
-<li><a href="/docs">Interactive API documentation</a></li>
-<li><a href="/api/standards">Standards tables</a></li>
-<li><a href="/api/rules">Rules</a></li>
-<li><a href="/api/health">Health</a></li>
-</ul>
-</body></html>"""
+    inputs, result, standards = _design({})
+    return ui.page(inputs, result, standards, CAD_AVAILABLE)
+
+
+@app.post("/", response_class=HTMLResponse, include_in_schema=False)
+async def home_submit(request: Request) -> str:
+    """Plain form submit, for browsers without htmx."""
+    inputs, result, standards = _design(await _form(request))
+    return ui.page(inputs, result, standards, CAD_AVAILABLE)
+
+
+@app.post("/ui/update", response_class=HTMLResponse, include_in_schema=False)
+async def ui_update(request: Request) -> str:
+    """The results panel for the current inputs; the page swaps it in on every change."""
+    _, result, _ = _design(await _form(request))
+    return ui.results(result)
 
 
 @app.get("/api/health")
