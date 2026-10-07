@@ -15,4 +15,6 @@ placeholder table is left.
 | clearance.yaml | clearance_pct_by_material | rule PT-CLR-001 |
 | min_punch_diameter.yaml | min_punch_diameter | rule PT-MIN-004 |
 | min_distances.yaml | min_web_and_edge | rules PT-WEB-001, PT-EDGE-001 |
+| press_factors.yaml | press_factors | stripping force, press tonnage |
+| strip_allowances.yaml | strip_allowances | strip layout bridge and edge allowance |
 | rules/*.yaml | (rules) | rules engine |

@@ -10,6 +10,8 @@ REQUIRED_TABLES = {
     "clearance_pct_by_material",
     "min_punch_diameter",
     "min_web_and_edge",
+    "press_factors",
+    "strip_allowances",
 }
 
 
