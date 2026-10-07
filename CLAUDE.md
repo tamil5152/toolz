@@ -34,7 +34,14 @@ OCP wheels (with and without VTK) that overwrite each other and break imports.
 The web API (server/app.py, FastAPI) is deployed on Vercel. Vercel installs only the
 base dependencies; CadQuery is the optional `cad` extra because it is over the 500 MB
 function limit. Never import cadquery or scipy at module level from rules/,
-engine/calc/ or server/: geometry endpoints import it lazily and answer 503 without it.
+engine/calc/, ai/ or server/: geometry endpoints import it lazily and answer 503 without it.
+
+## Assistant
+ai/ holds the design assistant (Anthropic Python SDK, model in ai/assistant.py). Tools
+in ai/tools.py wrap the designer, calculations, rules and standards; each tool's JSON
+schema is generated from its Pydantic input model. The API key comes only from the
+ANTHROPIC_API_KEY environment variable on the server; without it the chat panel says
+so and makes no calls. Tests use a scripted fake client, never the network.
 
 ## Placeholder standards
 Values in standards/ marked `placeholder: true` are NOT shop values. Tests marked
