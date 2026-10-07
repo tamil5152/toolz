@@ -43,8 +43,13 @@ def _number(
 
 
 def page(
-    inputs: DesignInput, result: DesignResult, standards: Standards, cad_available: bool
+    inputs: DesignInput,
+    result: DesignResult,
+    standards: Standards,
+    cad_available: bool,
+    assistant: str = "",
 ) -> str:
+    """The whole page; ``assistant`` is the chat panel's HTML, shown beside the results."""
     materials = [str(r["material"]) for r in standards.table("materials").rows]
     presses = [str(r["press_id"]) for r in standards.table("presses").rows]
     die_sets = [str(r["die_set_id"]) for r in standards.table("die_sets").rows]
@@ -118,6 +123,7 @@ def page(
     <p class="note"><a href="/docs">API documentation</a></p>
   </aside>
   <section id="results" class="results" aria-live="polite">{results(result)}</section>
+  {assistant}
 </main>
 </body></html>"""
 
@@ -277,8 +283,15 @@ body { margin:0; background:var(--bg); color:var(--ink); font:14px/1.45 system-u
 .live { color:var(--muted); font-size:12px; opacity:0; transition:opacity .15s; }
 .live.htmx-request { opacity:1; }
 .dot { display:inline-block; width:8px; height:8px; border-radius:50%; background:var(--accent); margin-right:6px; }
-.layout { display:grid; grid-template-columns:340px 1fr; gap:16px; padding:16px; max-width:1500px; margin:0 auto; }
-@media (max-width: 900px) { .layout { grid-template-columns:1fr; padding:16px; } }
+.layout { display:grid; grid-template-columns:340px minmax(0,1fr); grid-template-rows:auto 1fr;
+  grid-template-areas:"inputs results" "chat results"; gap:16px; padding:16px; max-width:1900px; margin:0 auto; }
+.layout > .inputs { grid-area:inputs; } .layout > .results { grid-area:results; }
+.layout > .assistant { grid-area:chat; align-self:start; }
+@media (min-width: 1440px) { .layout { grid-template-columns:340px minmax(0,1fr) 380px; grid-template-rows:auto;
+    grid-template-areas:"inputs results chat"; }
+  .layout > .assistant { position:sticky; top:64px; max-height:calc(100vh - 80px); } }
+@media (max-width: 900px) { .layout { grid-template-columns:1fr; grid-template-rows:auto;
+    grid-template-areas:"inputs" "results" "chat"; padding:16px; } }
 .inputs fieldset { border:1px solid var(--line); background:var(--panel); border-radius:10px; margin:0 0 12px; padding:10px 12px 12px; }
 legend { font-weight:600; padding:0 4px; }
 .field { display:flex; flex-direction:column; gap:4px; margin-top:8px; min-width:0; }
@@ -327,6 +340,31 @@ td:nth-child(-n+3) { white-space:nowrap; }
 .pill.pass { background:var(--good-bg); color:var(--good); }
 .pill.warning { background:var(--warn-bg); color:var(--warn); }
 .pill.fail { background:var(--bad-bg); color:var(--bad); }
+.assistant { display:flex; flex-direction:column; gap:10px; }
+.assistant h2 { margin:0; }
+.chat-log { display:flex; flex-direction:column; gap:10px; overflow-y:auto; min-height:60px; }
+.msg { border-radius:10px; padding:8px 10px; overflow-wrap:anywhere; }
+.msg p { margin:0 0 6px; } .msg p:last-child { margin-bottom:0; }
+.msg ul { margin:4px 0 6px; padding-left:18px; }
+.msg.user { background:var(--bg); border:1px solid var(--line); align-self:flex-end; max-width:90%; white-space:pre-wrap; }
+.msg.bot { border:1px solid var(--line); }
+.msg.error { border-color:var(--bad); color:var(--bad); }
+.msg details { margin-top:8px; color:var(--muted); font-size:12px; }
+.msg details ul { padding-left:16px; } .msg details li.err { color:var(--bad); }
+.msg code { font-size:12px; }
+.flag { background:var(--warn-bg); color:var(--warn); border-radius:6px; padding:6px 8px; font-size:13px; }
+.proposal { margin-top:8px; border-top:1px solid var(--line); padding-top:8px; }
+.proposal h3 { font-size:13px; margin:0 0 4px; }
+.proposal .checks { list-style:none; padding:0; margin:8px 0; display:flex; flex-direction:column; gap:4px; font-size:13px; }
+.proposal .ok { color:var(--good); font-size:13px; }
+.ask { display:flex; flex-direction:column; gap:6px; }
+.ask textarea { font-family:inherit; font-size:14px; }
+.ask-row { display:flex; justify-content:space-between; align-items:center; gap:8px; }
+button { font:inherit; font-weight:600; color:#fff; background:var(--accent); border:0; border-radius:6px; padding:6px 14px; cursor:pointer; }
+button:disabled { opacity:.6; cursor:wait; }
+.working { visibility:hidden; color:var(--muted); font-size:12px; }
+.assistant.htmx-request .working { visibility:visible; }
+.notice { background:var(--warn-bg); color:var(--ink); border-radius:8px; padding:8px 10px; font-size:13px; margin:0; }
 svg.drawing { width:100%; height:auto; max-height:380px; display:block; margin:0 auto; }
 .drawing .part { fill:var(--part); stroke:var(--part-line); stroke-width:1.2; }
 .drawing .hole { fill:var(--hole); stroke:var(--part-line); stroke-width:1; }

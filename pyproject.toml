@@ -15,6 +15,7 @@ dependencies = [
     "numpy>=1.26",
     "fastapi>=0.115",
     "python-multipart>=0.0.9",
+    "anthropic>=1.11,<2",
 ]
 
 [project.optional-dependencies]
@@ -58,6 +59,7 @@ select = ["E", "F", "I", "B", "UP", "SIM"]
 # HTML and SVG markup reads better on one line than split mid-tag.
 "server/ui.py" = ["E501"]
 "server/drawings.py" = ["E501"]
+"server/assistant_ui.py" = ["E501"]
 
 [tool.mypy]
 python_version = "3.12"

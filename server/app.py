@@ -16,11 +16,12 @@ from fastapi import FastAPI, HTTPException, Request, UploadFile
 from fastapi.responses import HTMLResponse
 from pydantic import BaseModel, Field
 
+from ai import assistant
 from engine.calc.forces import CuttingContour, PressForces, press_forces
 from engine.calc.strip_layout import StripLayoutOptions, strip_layout_options
 from rules.engine import RuleResult, RulesEngine, Subject, has_blocking_failure
 from rules.standards import Standards, StandardsError
-from server import ui
+from server import assistant_ui, ui
 from server.designer import DesignInput, DesignResult, evaluate, parse_form
 
 app = FastAPI(
@@ -64,14 +65,18 @@ async def _form(request: Request) -> dict[str, str]:
 @app.get("/", response_class=HTMLResponse, include_in_schema=False)
 def home() -> str:
     inputs, result, standards = _design({})
-    return ui.page(inputs, result, standards, CAD_AVAILABLE)
+    chat = assistant_ui.panel([], assistant.configured(), inputs)
+    return ui.page(inputs, result, standards, CAD_AVAILABLE, chat)
 
 
 @app.post("/", response_class=HTMLResponse, include_in_schema=False)
 async def home_submit(request: Request) -> str:
-    """Plain form submit, for browsers without htmx."""
-    inputs, result, standards = _design(await _form(request))
-    return ui.page(inputs, result, standards, CAD_AVAILABLE)
+    """Plain form submit (browsers without htmx), and applying an assistant proposal."""
+    form = await _form(request)
+    inputs, result, standards = _design(form)
+    history = assistant_ui.parse_history(form.get("history", ""))
+    chat = assistant_ui.panel(history, assistant.configured(), inputs)
+    return ui.page(inputs, result, standards, CAD_AVAILABLE, chat)
 
 
 @app.post("/ui/update", response_class=HTMLResponse, include_in_schema=False)
@@ -79,6 +84,26 @@ async def ui_update(request: Request) -> str:
     """The results panel for the current inputs; the page swaps it in on every change."""
     _, result, _ = _design(await _form(request))
     return ui.results(result)
+
+
+@app.post("/ui/assistant", response_class=HTMLResponse, include_in_schema=False)
+async def ui_assistant(request: Request) -> str:
+    """Answer a chat question about the design in the form; returns the chat panel."""
+    form = await _form(request)
+    history = assistant_ui.parse_history(form.get("history", ""))
+    message = form.get("message", "").strip()
+    inputs, _ = parse_form(form)
+    if not assistant.configured() or not message:
+        return assistant_ui.panel(history, assistant.configured(), inputs)
+    reply = assistant.ask(message, inputs, history, _standards(), RulesEngine.load())
+    if reply.error:
+        return assistant_ui.panel(history, True, inputs, reply, message=message)
+    history = [
+        *history,
+        assistant.ChatMessage(role="user", text=message),
+        assistant.ChatMessage(role="assistant", text=reply.text or reply.stopped or "(no answer)"),
+    ]
+    return assistant_ui.panel(history, True, inputs, reply)
 
 
 @app.get("/api/health")
