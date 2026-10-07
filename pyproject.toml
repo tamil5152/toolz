@@ -54,6 +54,11 @@ target-version = "py312"
 [tool.ruff.lint]
 select = ["E", "F", "I", "B", "UP", "SIM"]
 
+[tool.ruff.lint.per-file-ignores]
+# HTML and SVG markup reads better on one line than split mid-tag.
+"server/ui.py" = ["E501"]
+"server/drawings.py" = ["E501"]
+
 [tool.mypy]
 python_version = "3.12"
 strict = true

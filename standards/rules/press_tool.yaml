@@ -23,7 +23,7 @@
 
 - id: PT-WEB-001
   title: Minimum web between cut contours
-  applies_to: [part, strip_layout]
+  applies_to: [part_web, strip_layout]
   default:
     table: min_web_and_edge
     key: [material]
@@ -60,3 +60,13 @@
   check: "edge_distance_mm >= min_edge_to_diameter * diameter_mm"
   severity: fail
   source: "Minimum fastener edge distances"
+
+- id: PT-TON-001
+  title: Press force within press capacity
+  applies_to: [press_load]
+  default:
+    table: presses
+    key: [press_id]
+  check: "press_force_kn <= capacity_kn"
+  severity: fail
+  source: "Press data sheet"
