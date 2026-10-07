@@ -15,11 +15,11 @@ jobs:
           python-version: "3.12"
           cache: pip
       - name: Install
-        run: pip install -e ".[dev]"
+        run: pip install -e ".[dev,cad]"
       - name: Ruff
         run: ruff check . && ruff format --check .
       - name: Mypy
-        run: mypy engine rules ai
+        run: mypy engine rules ai server
       - name: Pytest
         # needs_shop_standards tests fail by design until real shop values replace
         # the placeholders in standards/. Remove this deselect once they are in.

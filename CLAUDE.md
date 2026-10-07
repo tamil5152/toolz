@@ -28,16 +28,22 @@ clients/desktop/ (PySide6, later) - standards/ - tests/ (golden_parts/)
 CadQuery only. build123d is not installed alongside it: the two pull different
 OCP wheels (with and without VTK) that overwrite each other and break imports.
 
+## Deployment
+The web API (server/app.py, FastAPI) is deployed on Vercel. Vercel installs only the
+base dependencies; CadQuery is the optional `cad` extra because it is over the 500 MB
+function limit. Never import cadquery or scipy at module level from rules/,
+engine/calc/ or server/: geometry endpoints import it lazily and answer 503 without it.
+
 ## Placeholder standards
 Values in standards/ marked `placeholder: true` are NOT shop values. Tests marked
 `needs_shop_standards` fail until they are replaced; CI deselects that marker
 until the real tables are in. Never treat a placeholder as a real value.
 
 ## Commands
-- Install: pip install -e ".[dev]"
+- Install: pip install -e ".[dev,cad]"
 - Tests: pytest -q
 - Lint and format: ruff check . && ruff format .
-- Types: mypy engine rules ai
+- Types: mypy engine rules ai server
 
 ## Working style
 - Small steps. After each step: run tests, show me what changed, and stop.

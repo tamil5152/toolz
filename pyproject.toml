@@ -8,21 +8,32 @@ version = "0.1.0"
 description = "AI-assisted press tool design engine on OpenCASCADE"
 readme = "README.md"
 requires-python = ">=3.12,<3.13"
+# Light dependencies only: this is what the Vercel deployment installs.
 dependencies = [
-    "cadquery>=2.5",
     "pydantic>=2.7",
     "pyyaml>=6.0",
     "numpy>=1.26",
-    "scipy>=1.12",
+    "fastapi>=0.115",
+    "python-multipart>=0.0.9",
 ]
 
 [project.optional-dependencies]
+# Geometry (part import, tool features). Over 1 GB installed, so it is not part of
+# the Vercel deployment; install it for local work and CI.
+cad = [
+    "cadquery>=2.5",
+    "scipy>=1.12",
+]
 dev = [
     "pytest>=8",
     "ruff>=0.6",
     "mypy>=1.10",
     "types-PyYAML",
+    "httpx>=0.27",
 ]
+
+[tool.vercel]
+entrypoint = "server.app:app"
 
 [tool.setuptools.packages.find]
 include = ["engine*", "rules*", "ai*", "knowledge*", "server*", "data*", "clients*"]
