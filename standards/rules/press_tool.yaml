@@ -1,0 +1,42 @@
+# Press tool rules. Numbers in a check come from the standards tables through
+# `default`, or are limits stated by the cited source.
+
+- id: PT-CLR-001
+  title: Punch-die clearance per side
+  applies_to: [pierce_punch, blank_punch]
+  default:
+    table: clearance_pct_by_material
+    key: [material, thickness_mm]
+  check: "clearance_pct between 3 and 10"
+  severity: fail
+  source: "Plan sample rule; confirm limits against shop standard"
+
+- id: PT-MIN-004
+  title: Minimum pierce punch diameter
+  applies_to: [pierce_punch]
+  default:
+    table: min_punch_diameter
+    key: [material]
+  check: "diameter_mm >= min_diameter_to_thickness * thickness_mm"
+  severity: warning
+  source: "Piercing limits"
+
+- id: PT-WEB-001
+  title: Minimum web between cut contours
+  applies_to: [part, strip_layout]
+  default:
+    table: min_web_and_edge
+    key: [material]
+  check: "min_web_mm >= min_web_to_thickness * thickness_mm"
+  severity: fail
+  source: "Minimum web and edge distances"
+
+- id: PT-EDGE-001
+  title: Minimum distance from a cut contour to the part edge
+  applies_to: [part]
+  default:
+    table: min_web_and_edge
+    key: [material]
+  check: "min_edge_distance_mm >= min_edge_to_thickness * thickness_mm"
+  severity: fail
+  source: "Minimum web and edge distances"
