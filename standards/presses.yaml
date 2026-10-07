@@ -1,0 +1,6 @@
+table: presses
+placeholder: true
+source: "PLACEHOLDER - replace with the shop's press list"
+description: "Presses: capacity in kN, shut height range in mm (bed to ram at bottom of stroke)"
+rows:
+  - {press_id: PR-400, capacity_kn: 400, shut_height_min_mm: 180, shut_height_max_mm: 260}

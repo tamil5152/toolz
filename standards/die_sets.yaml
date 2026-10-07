@@ -1,0 +1,16 @@
+table: die_sets
+placeholder: true
+source: "PLACEHOLDER - replace with the die set supplier catalogue the shop buys from"
+description: "Four-pillar die sets; all dimensions in mm, pillars on a rectangle centred on the set"
+rows:
+  - die_set_id: DS-250x200
+    length_mm: 250
+    width_mm: 200
+    lower_shoe_thickness_mm: 40
+    upper_shoe_thickness_mm: 35
+    pillar_diameter_mm: 25
+    pillar_length_mm: 160
+    bush_outer_diameter_mm: 38
+    bush_length_mm: 30
+    pillar_spacing_x_mm: 200
+    pillar_spacing_y_mm: 150

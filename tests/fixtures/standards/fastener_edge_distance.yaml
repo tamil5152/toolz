@@ -1,0 +1,6 @@
+table: fastener_edge_distance
+source: "Test fixture: fixed values for tests, not shop standards"
+description: "Smallest distance from a screw or dowel centre to a plate edge, as a multiple of its diameter"
+rows:
+  - {fastener: screw, min_edge_to_diameter: 1.5}
+  - {fastener: dowel, min_edge_to_diameter: 1.5}

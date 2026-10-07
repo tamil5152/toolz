@@ -1,0 +1,7 @@
+table: dowels
+source: "Test fixture: fixed values for tests, not shop standards"
+description: "Stocked dowel pin diameters in mm"
+rows:
+  - {diameter_mm: 6}
+  - {diameter_mm: 8}
+  - {diameter_mm: 10}

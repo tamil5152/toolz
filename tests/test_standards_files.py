@@ -12,6 +12,11 @@ REQUIRED_TABLES = {
     "min_web_and_edge",
     "press_factors",
     "strip_allowances",
+    "die_sets",
+    "presses",
+    "screws",
+    "dowels",
+    "fastener_edge_distance",
 }
 
 

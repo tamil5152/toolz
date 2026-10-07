@@ -17,4 +17,9 @@ placeholder table is left.
 | min_distances.yaml | min_web_and_edge | rules PT-WEB-001, PT-EDGE-001 |
 | press_factors.yaml | press_factors | stripping force, press tonnage |
 | strip_allowances.yaml | strip_allowances | strip layout bridge and edge allowance |
+| die_sets.yaml | die_sets | die set feature |
+| presses.yaml | presses | rule PT-SH-001 (shut height) |
+| screws.yaml | screws | screw feature |
+| dowels.yaml | dowels | dowel feature |
+| fastener_edge_distance.yaml | fastener_edge_distance | rule PT-FAS-001 |
 | rules/*.yaml | (rules) | rules engine |

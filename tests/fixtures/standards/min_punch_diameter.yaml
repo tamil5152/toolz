@@ -1,0 +1,7 @@
+table: min_punch_diameter
+source: "Test fixture: fixed values for tests, not shop standards"
+description: "Smallest pierce punch diameter as a multiple of sheet thickness"
+rows:
+  - {material: mild_steel, min_diameter_to_thickness: 1.0}
+  - {material: stainless_304, min_diameter_to_thickness: 1.5}
+  - {material: aluminium_5052, min_diameter_to_thickness: 0.8}
